@@ -12,7 +12,7 @@ services:
             - "5432:5432"
         restart: always
     
-    dataRetention:
+    dataretention:
         build: ./dataRetention
         volumes:
             - ./dataRetention:/app
