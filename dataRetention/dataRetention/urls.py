@@ -22,7 +22,7 @@ from app import views
 
 urlpatterns = [
     url(r'^stay/add', views.stayData, name='stayData'),
-    url(r'^stay/delete', views.removeData, name='removeData'),
+    url(r'^stay/delete', views.removeDataUser, name='removeDataUser'),
     url(r'^stay/clean', views.cleanData, name='cleanData'),
     
 ]

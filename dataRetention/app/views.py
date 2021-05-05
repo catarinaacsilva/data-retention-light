@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
 from influxdb_client import InfluxDBClient
+from django.db import transaction
 from django.conf import settings
 from .models import Stay_Data, User
 
@@ -29,8 +30,8 @@ def get_influxdb_client():
 def stayData(request):
     try:
         parameters = json.loads(request.body)
-        datein = parameters['datein']
-        dateout = parameters['dateout']
+        datein = parameters['start_date']
+        dateout = parameters['end_date']
         receipt = parameters['receipt']
 
         email = receipt['subjectEmail']
@@ -42,7 +43,7 @@ def stayData(request):
                 if not User.objects.filter(email=email).exists():
                     User.objects.create(email=email)
                 user = User.objects.get(email=email)
-                stay = Stay_Data.objects.create(email=user, datein=datein, dateout=dateout, data=True)
+                stay = Stay_Data.objects.create(email=user, datein=datein, dateout=dateout, data=True, receipt=receipt)
 
         else:
             stay = qs.first()
@@ -88,12 +89,14 @@ def removeDataUser(request):
         client = get_influxdb_client()
         client.delete_api().delete(dateIn, dateOut, '',  bucket='cassiopeiainflux', org='it')
        
-        qs.update(data=False)
+        #qs.update(data=False)
+        qs.data = False
+        qs.save()
         
     except Exception as e:
         return Response(f'Exception: {e}\n', status=status.HTTP_400_BAD_REQUEST)
 
-    return Response('Data Removed', status=status.HTTP_200_OK)
+    return Response(status=status.HTTP_200_OK)
 
 
 
@@ -106,7 +109,7 @@ def cleanData(request):
     try:
         stay_id = request.GET['stay_id']
         
-        qs = Stay_Data.objects.filter(stay_id=stay_id)
+        qs = Stay_Data.objects.get(id=stay_id)
 
         if qs.data == True:
             return JsonResponse({'clean': False})
