@@ -21,6 +21,7 @@ from django.conf.urls import url
 from app import views
 
 urlpatterns = [
+    url(r'^stay/add', views.stayData, name='stayData'),
     url(r'^stay/delete', views.removeData, name='removeData'),
     url(r'^stay/clean', views.cleanData, name='cleanData'),
     
