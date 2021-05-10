@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view
 from influxdb_client import InfluxDBClient
 from django.db import transaction
 from django.conf import settings
-from .models import Stay_Data, User
+from .models import Stay_Data, User, Receipt
 
 '''
     Returns an ``InfluxDBClient`` instance.
@@ -44,7 +44,7 @@ def stayData(request):
                 if not User.objects.filter(email=email).exists():
                     User.objects.create(email=email)
                 user = User.objects.get(email=email)
-                stay = Stay_Data.objects.create(email=user, datein=datein, dateout=dateout, data=True, receipt=receipt)
+                stay = Stay_Data.objects.create(email=user, datein=datein, dateout=dateout, data=True, receipt=receipt, receiptid=receipt['consentReceiptID'])
 
         else:
             stay = qs.first()
@@ -63,9 +63,15 @@ def stayData(request):
 @api_view(('GET',))
 def removeDataUser(request):
     try:
-        stay_id = request.GET['stay_id']
+        token = request.GET['token']
+        email = request.GET['userid']
+        receiptid = request.GET['receipt_id']
+
+        if token == None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         
-        qs = Stay_Data.objects.get(id=stay_id)
+        user = User.objects.get(email=email)
+        qs = Stay_Data.objects.filter(email=user, receiptid=receipt_id)
 
         dateIn = qs.datein
         dateOut = qs.dateout
@@ -93,6 +99,9 @@ def removeDataUser(request):
         #qs.update(data=False)
         qs.data = False
         qs.save()
+
+        timestamp = datetime.timestamp(now)
+        Receipt.objects.create(email=user, timestamp=timestamp)
         
     except Exception as e:
         return Response(f'Exception: {e}\n', status=status.HTTP_400_BAD_REQUEST)
@@ -108,14 +117,36 @@ def removeDataUser(request):
 @api_view(('GET',))
 def cleanData(request):
     try:
-        stay_id = request.GET['stay_id']
-        
-        qs = Stay_Data.objects.get(id=stay_id)
+        token = request.GET['token']
+        email = request.GET['userid']
+        receiptid = request.GET['receipt_id']
 
+        if token == None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+        user = User.objects.get(email=email)
+        qs = Stay_Data.objects.filter(email=user, receiptid=receipt_id)
+
+        receiptInfo = Receipt.get(email=user)
+        
         if qs.data == True:
-            return JsonResponse({'clean': False})
+            return JsonResponse({
+                'start_date': qs.datein,
+                'end_date': qs.dateout,
+                'email': email,
+                'timestamp': receiptInfo.timestamp,
+                'receiptDeletionId': receiptInfo.id,
+                'Data': 'Not Removed'
+                })
         else:
-            return JsonResponse({'clean': True})
+            return JsonResponse({
+                'start_date': qs.datein,
+                'end_date': qs.dateout,
+                'email': email,
+                'timestamp': receiptInfo.timestamp,
+                'receiptDeletionId': receiptInfo.id,
+                'Data': 'Removed'
+                })
 
     except Exception as e:
         return Response(f'Exception: {e}\n', status=status.HTTP_400_BAD_REQUEST)

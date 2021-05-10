@@ -11,11 +11,16 @@ class Stay_Data(models.Model):
     dateout = models.DateField(null=False)
     data = models.BooleanField(null=False)
     receipt = models.JSONField(null=False)
+    receiptid = models.CharField(max_length = 100, null=False)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['email', 'datein', 'dateout'], name='unique_stay')
         ]
+
+class Receipt(models.Model):
+    email = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    timestamp = models.DateTimeField(null=False)
 
 
 '''
