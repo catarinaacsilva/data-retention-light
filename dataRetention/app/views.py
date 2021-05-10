@@ -32,9 +32,10 @@ def stayData(request):
         parameters = json.loads(request.body)
         datein = parameters['start_date']
         dateout = parameters['end_date']
+        email = parameters['userid']
         receipt = parameters['receipt']
 
-        email = receipt['subjectEmail']
+        #email = receipt['subjectEmail']
 
         # check if it exists
         qs = Stay_Data.objects.filter(email=email, datein=datein, dateout=dateout)

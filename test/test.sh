@@ -2,7 +2,7 @@
 
 # Insert stay
 echo -e "Insert stay"
-content=$(curl -s -d "{\"start_date\": \"2021-04-20\", \"end_date\": \"2021-04-22\", \"receipt\": {\"subjectEmail\":\"user@email.com\"}}" \
+content=$(curl -s -d "{\"start_date\": \"2021-04-20\", \"end_date\": \"2021-04-22\", \"userid\": \"my@email.com\", \"receipt\": {\"subjectEmail\":\"user@email.com\"}}" \
 -H "Content-Type: application/json" http://atnog-homeassistant.av.it.pt:8000/stay/add)
 stay_id=$( jq -r  '.stay_id' <<< "${content}" ) 
 echo -e "stay_id= ${stay_id}"
