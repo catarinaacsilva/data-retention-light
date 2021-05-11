@@ -1,5 +1,7 @@
 import json
 import datetime
+import pytz
+from django.utils import timezone
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
@@ -35,25 +37,30 @@ def stayData(request):
         email = parameters['userid']
         receipt = parameters['receipt']
 
+        date_format = '%Y-%m-%d %H:%M:%S'
+
+        # convert to UTC timezone
+        unaware_start_date = datetime.datetime.strptime(datein, date_format)
+        aware_start_date = pytz.utc.localize(unaware_start_date)
+
+        unaware_end_date = datetime.datetime.strptime(dateout, date_format)
+        aware_end_date = pytz.utc.localize(unaware_end_date)
+
         #email = receipt['subjectEmail']
 
         # check if it exists
-        qs = Stay_Data.objects.filter(email=email, datein=datein, dateout=dateout)
+        qs = Stay_Data.objects.filter(email=email, datein=aware_start_date, dateout=aware_end_date)
         if not qs.exists():
             with transaction.atomic():
                 if not User.objects.filter(email=email).exists():
                     User.objects.create(email=email)
                 user = User.objects.get(email=email)
-                stay = Stay_Data.objects.create(email=user, datein=datein, dateout=dateout, data=True, receipt=receipt, receiptid=receipt['consentReceiptID'])
-
-        else:
-            stay = qs.first()
+                stay = Stay_Data.objects.create(email=user, datein=datein, dateout=dateout, data=True, receiptJson=receipt, receiptid=receipt['consentReceiptID'])
 
     except Exception as e:
         return Response(f'Exception: {e}\n', status=status.HTTP_400_BAD_REQUEST)
     
-    print({'stay_id': stay.pk})
-    return JsonResponse({'stay_id': int(stay.pk)}, status=status.HTTP_201_CREATED)
+    return Response(status=status.HTTP_201_CREATED)
 
 
 '''
@@ -71,7 +78,7 @@ def removeDataUser(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
         user = User.objects.get(email=email)
-        qs = Stay_Data.objects.get(email=user, receiptid=receipt_id)
+        qs = Stay_Data.objects.get(email=user, receiptid=receiptid)
 
         dateIn = qs.datein
         dateOut = qs.dateout
@@ -100,8 +107,9 @@ def removeDataUser(request):
         qs.data = False
         qs.save()
 
-        timestamp = datetime.timestamp(now)
-        Receipt.objects.create(email=user, timestamp=timestamp)
+        now = timezone.now()
+        #timestamp = datetime.datetime.timestamp(now)
+        Receipt.objects.create(email=user, timestamp=now, stayId=qs)
         
     except Exception as e:
         return Response(f'Exception: {e}\n', status=status.HTTP_400_BAD_REQUEST)
@@ -125,9 +133,9 @@ def cleanData(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
         user = User.objects.get(email=email)
-        qs = Stay_Data.objects.get(email=user, receiptid=receipt_id)
+        qs = Stay_Data.objects.get(email=user, receiptid=receiptid)
 
-        receiptInfo = Receipt.get(email=user)
+        receiptInfo = Receipt.objects.get(email=user, stayId=qs)
         
         if qs.data == True:
             return JsonResponse({
