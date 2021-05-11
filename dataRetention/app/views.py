@@ -71,7 +71,7 @@ def removeDataUser(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
         user = User.objects.get(email=email)
-        qs = Stay_Data.objects.filter(email=user, receiptid=receipt_id)
+        qs = Stay_Data.objects.get(email=user, receiptid=receipt_id)
 
         dateIn = qs.datein
         dateOut = qs.dateout
@@ -125,7 +125,7 @@ def cleanData(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
         user = User.objects.get(email=email)
-        qs = Stay_Data.objects.filter(email=user, receiptid=receipt_id)
+        qs = Stay_Data.objects.get(email=user, receiptid=receipt_id)
 
         receiptInfo = Receipt.get(email=user)
         

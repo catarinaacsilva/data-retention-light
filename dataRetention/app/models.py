@@ -11,7 +11,7 @@ class Stay_Data(models.Model):
     dateout = models.DateField(null=False)
     data = models.BooleanField(null=False)
     receipt = models.JSONField(null=False)
-    receiptid = models.CharField(max_length = 100, null=False)
+    receiptid = models.UUIDField(null=False, primary_key=True)
 
     class Meta:
         constraints = [
