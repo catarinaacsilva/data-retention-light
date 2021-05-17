@@ -16,7 +16,7 @@ from .models import Stay_Data, User, Receipt
 from rest_framework.authtoken.models import Token
 
 @csrf_exempt
-@api_view(('GET',)
+@api_view(('GET',))
 def g(request):
     token = Token.objects.create(user='privdash')
     print(token.key)
