@@ -20,12 +20,15 @@ from rest_framework.authtoken.models import Token
 @csrf_exempt
 @api_view(('GET',))
 def token(request):
-    user = User.objects.get(username='privdash')
+    qs = User.objects.filter(username='privdash')
 
-    if not user:
+    user = None
+    if not qs.exists():
         user = User.objects.create_user('privdash', 'privdash@privdash.com', 'privdash')
         token = Token.objects.create(user=user)
-    
+    else:
+        user = qs.first()
+        
     token = Token.objects.get(user=user)
     print(token.key)
     return JsonResponse({'token':str(token)})
