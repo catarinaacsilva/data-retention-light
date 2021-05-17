@@ -18,6 +18,6 @@ curl -s -H "Authorization: Token 74bd3673e5b76918c4fb6f0d9e8bbd9c25ff9b24" -X GE
 
 # Validate data deletion
 #echo -e "Validate data deletion"
-#curl -s -H "Authorization: Token 05d179c1a1b84dbc907a2deb900931e8fb03140f" -X GET "hhttp://atnog-homeassistant.av.it.pt:8000/stay/clean?token='123ABC'&userid=my@email.com&receipt_id=c8c37806-ef54-4d1b-a741-39f6e1868019"
+#curl -s -H "Authorization: Token 05d179c1a1b84dbc907a2deb900931e8fb03140f" -X GET "http://atnog-homeassistant.av.it.pt:8000/stay/clean?token='123ABC'&userid=my@email.com&receipt_id=c8c37806-ef54-4d1b-a741-39f6e1868019"
 
 curl -s -H "Authorization: Token 74bd3673e5b76918c4fb6f0d9e8bbd9c25ff9b24" -X GET "http://localhost:8000/stay/clean?userid=my@email.com&receipt_id=c8c37806-ef54-4d1b-a741-39f6e1868019"
