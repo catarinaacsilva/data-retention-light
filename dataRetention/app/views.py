@@ -13,6 +13,16 @@ from django.db import transaction
 from django.conf import settings
 from .models import Stay_Data, User, Receipt
 
+from rest_framework.authtoken.models import Token
+
+@csrf_exempt
+@api_view(('GET',)
+def g(request):
+    token = Token.objects.create(user='privdash')
+    print(token.key)
+    return JsonResponse({'token':token})
+
+
 '''
     Returns an ``InfluxDBClient`` instance.
 '''
@@ -29,6 +39,8 @@ def get_influxdb_client():
 '''
 @csrf_exempt
 @api_view(('POST',))
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def stayData(request):
     try:
         parameters = json.loads(request.body)
@@ -68,6 +80,8 @@ def stayData(request):
 '''
 @csrf_exempt
 @api_view(('GET',))
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def removeDataUser(request):
     try:
         token = request.GET['token']
@@ -123,6 +137,8 @@ def removeDataUser(request):
 '''
 @csrf_exempt
 @api_view(('GET',))
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def cleanData(request):
     try:
         token = request.GET['token']

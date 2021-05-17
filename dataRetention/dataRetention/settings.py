@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework.authtoken',
     'app',
 ]
 
@@ -137,3 +138,10 @@ STATICFILES_DIRS = (os.path.join('static'),)
 INFLUXDB_URL = 'http://10.0.12.40:8086'
 INFLUXDB_TOKEN = 'admintoken123'
 INFLUXDB_ORG = 'it'
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ]
+}
