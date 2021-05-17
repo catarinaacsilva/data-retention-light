@@ -103,36 +103,39 @@ def removeDataUser(request):
         user = Contact.objects.get(email=email)
         qs = Stay_Data.objects.get(email=user, receiptid=receiptid)
 
-        dateIn = qs.datein
-        dateOut = qs.dateout
+        receipt = Receipt.objects.filter(stayId=qs)
+        if not receipt.exists():
+            
 
-        #check if dateIn and dateOut are Date
-        if isinstance(dateIn, datetime.date):
-            print('convert dateIn to datetime')
-            dateIn = datetime.datetime(year=dateIn.year, month=dateIn.month, day=dateIn.day)
+            dateIn = qs.datein
+            dateOut = qs.dateout
 
-        if isinstance(dateOut, datetime.date):
-            print('convert dateOut to datetime')
-            dateOut = datetime.datetime(year=dateOut.year, month=dateOut.month, day=dateOut.day)
-        fmt = '%Y-%m-%dT%H:%M:%SZ'
-        #utc = pytz.utc
-        #dateIn = utc.localize(dateIn)
-        dateIn = dateIn.strftime(fmt)
-        dateOut = dateOut.strftime(fmt) 
+            #check if dateIn and dateOut are Date
+            if isinstance(dateIn, datetime.date):
+                print('convert dateIn to datetime')
+                dateIn = datetime.datetime(year=dateIn.year, month=dateIn.month, day=dateIn.day)
 
-        print(f'In {dateIn} Out {dateOut}')
+            if isinstance(dateOut, datetime.date):
+                print('convert dateOut to datetime')
+                dateOut = datetime.datetime(year=dateOut.year, month=dateOut.month, day=dateOut.day)
+            fmt = '%Y-%m-%dT%H:%M:%SZ'
+            #utc = pytz.utc
+            #dateIn = utc.localize(dateIn)
+            dateIn = dateIn.strftime(fmt)
+            dateOut = dateOut.strftime(fmt) 
+
+            print(f'In {dateIn} Out {dateOut}')
+            
+            #query = f'influx delete --bucket cassiopeiainflux --start {dateIn} --stop {dateOut}'
+            client = get_influxdb_client()
+            client.delete_api().delete(dateIn, dateOut, '',  bucket='cassiopeiainflux', org='it')
         
-        #query = f'influx delete --bucket cassiopeiainflux --start {dateIn} --stop {dateOut}'
-        client = get_influxdb_client()
-        client.delete_api().delete(dateIn, dateOut, '',  bucket='cassiopeiainflux', org='it')
-       
-        #qs.update(data=False)
-        qs.data = False
-        qs.save()
+            #qs.update(data=False)
+            qs.data = False
+            qs.save()
 
-        now = timezone.now()
-        #timestamp = datetime.datetime.timestamp(now)
-        Receipt.objects.create(email=user, timestamp=now, stayId=qs)
+            now = timezone.now()
+            Receipt.objects.create(email=user, timestamp=now, stayId=qs)
         
     except Exception as e:
         return Response(f'Exception: {e}\n', status=status.HTTP_400_BAD_REQUEST)
