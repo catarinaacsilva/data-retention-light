@@ -2,11 +2,11 @@ from django.db import models
 import uuid
 
 
-class User(models.Model):
+class Contact(models.Model):
     email = models.EmailField(unique = True, null=False, primary_key=True)
 
 class Stay_Data(models.Model):
-    email = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    email = models.ForeignKey(Contact, on_delete=models.CASCADE, null=False)
     datein = models.DateTimeField(null=False)
     dateout = models.DateTimeField(null=False)
     data = models.BooleanField(null=False)
@@ -19,7 +19,7 @@ class Stay_Data(models.Model):
         ]
 
 class Receipt(models.Model):
-    email = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    email = models.ForeignKey(Contact, on_delete=models.CASCADE, null=False)
     stayId = models.OneToOneField(Stay_Data, on_delete=models.CASCADE, null=False)
     timestamp = models.DateTimeField(null=False)
 

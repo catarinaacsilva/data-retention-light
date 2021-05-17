@@ -7,20 +7,32 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+
+
+
+
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+
+
+
 from influxdb_client import InfluxDBClient
 from django.db import transaction
 from django.conf import settings
-from .models import Stay_Data, User, Receipt
-
+from .models import Stay_Data, Contact, Receipt
+from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 
 @csrf_exempt
 @api_view(('GET',))
 def g(request):
-    token = Token.objects.create(user='privdash')
+    user = User.objects.create_user('privdash', 'privdash@privdash.com', 'privdash')
+    token = Token.objects.create(user=user)
+    user.save()
+    token.save()
     print(token.key)
-    return JsonResponse({'token':token})
+    return JsonResponse({'token':str(token)})
 
 
 '''
@@ -64,9 +76,9 @@ def stayData(request):
         qs = Stay_Data.objects.filter(email=email, datein=aware_start_date, dateout=aware_end_date)
         if not qs.exists():
             with transaction.atomic():
-                if not User.objects.filter(email=email).exists():
-                    User.objects.create(email=email)
-                user = User.objects.get(email=email)
+                if not Contact.objects.filter(email=email).exists():
+                    Contact.objects.create(email=email)
+                user = Contact.objects.get(email=email)
                 stay = Stay_Data.objects.create(email=user, datein=datein, dateout=dateout, data=True, receiptJson=receipt, receiptid=receipt['consentReceiptID'])
 
     except Exception as e:
@@ -84,14 +96,11 @@ def stayData(request):
 @permission_classes([IsAuthenticated])
 def removeDataUser(request):
     try:
-        token = request.GET['token']
         email = request.GET['userid']
         receiptid = request.GET['receipt_id']
 
-        if token == None:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
         
-        user = User.objects.get(email=email)
+        user = Contact.objects.get(email=email)
         qs = Stay_Data.objects.get(email=user, receiptid=receiptid)
 
         dateIn = qs.datein
@@ -141,14 +150,10 @@ def removeDataUser(request):
 @permission_classes([IsAuthenticated])
 def cleanData(request):
     try:
-        token = request.GET['token']
         email = request.GET['userid']
         receiptid = request.GET['receipt_id']
-
-        if token == None:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
         
-        user = User.objects.get(email=email)
+        user = Contact.objects.get(email=email)
         qs = Stay_Data.objects.get(email=user, receiptid=receiptid)
 
         receiptInfo = Receipt.objects.get(email=user, stayId=qs)
