@@ -24,5 +24,5 @@ urlpatterns = [
     url(r'^stay/add', views.stayData, name='stayData'),
     url(r'^stay/delete', views.removeDataUser, name='removeDataUser'),
     url(r'^stay/clean', views.cleanData, name='cleanData'),
-    url(r'^generate', views.g, name='g'),
+    url(r'^token', views.token, name='token'),
 ]

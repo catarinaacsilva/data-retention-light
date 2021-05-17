@@ -8,15 +8,8 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-
-
-
-
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-
-
-
 from influxdb_client import InfluxDBClient
 from django.db import transaction
 from django.conf import settings
@@ -26,11 +19,14 @@ from rest_framework.authtoken.models import Token
 
 @csrf_exempt
 @api_view(('GET',))
-def g(request):
-    user = User.objects.create_user('privdash', 'privdash@privdash.com', 'privdash')
-    token = Token.objects.create(user=user)
-    user.save()
-    token.save()
+def token(request):
+    user = User.objects.get(username='privdash')
+
+    if not user:
+        user = User.objects.create_user('privdash', 'privdash@privdash.com', 'privdash')
+        token = Token.objects.create(user=user)
+    
+    token = Token.objects.get(user=user)
     print(token.key)
     return JsonResponse({'token':str(token)})
 
