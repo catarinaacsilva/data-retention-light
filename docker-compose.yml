@@ -4,7 +4,7 @@ services:
         restart: always
         image: lmmdock/postgres-multi:latest
         volumes:
-            - postgres-storage:/var/lib/postgres
+            - postgres-storage:/var/lib/postgresql/data
         environment:
             - POSTGRES_DATABASES=dataretentiondb:${DATA_USER}
             - POSTGRES_USERS=${DATA_USER}:${DATA_PASSWORD}
