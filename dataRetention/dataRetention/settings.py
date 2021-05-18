@@ -57,10 +57,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    'https://privdash.com',
-]
+#CORS_ALLOWED_ORIGINS = ['https://privdash.com',]
 
+ALLOWED_HOSTS=['*']
+CORS_ORIGIN_ALLOW_ALL = True
 #CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'dataRetention.urls'
@@ -153,3 +153,5 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ]
 }
+
+SECURE_REFERRER_POLICY = "no-referrer-when-downgrade"
