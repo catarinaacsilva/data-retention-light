@@ -27,9 +27,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = '19llw&_x965hhhzir1p2mibo(j4!w7ne4d9-cd=km9iryzjmpb'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['10.0.12.40', 'localhost', '127.0.0.1', 'atnog-homeassistant.av.it.pt']
+ALLOWED_HOSTS = ['10.0.12.40', 'localhost', '127.0.0.1', 'atnog-homeassistant.av.it.pt', 'data.cassiopeia.id']
 
 
 # Application definition
